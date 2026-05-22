@@ -80,8 +80,10 @@ body.lang-ja .qt-big {
 }
 .lang-title { font-family: var(--serif); font-size: 2rem; margin-bottom: 3rem; letter-spacing: 0.1em; color: var(--accent); }
 .lang-options { display: flex; gap: 2rem; align-items: center; }
-.lang-btn { font-family: var(--body); font-size: 1rem; text-transform: uppercase; letter-spacing: 0.15em; color: var(--muted); transition: color 0.3s; }
+.lang-btn { display: flex; align-items: center; gap: 0.5rem; font-family: var(--body); font-size: 1rem; text-transform: uppercase; letter-spacing: 0.15em; color: var(--muted); transition: color 0.3s; }
 .lang-btn:hover { color: var(--fg); }
+.lang-flag { font-size: 1.3rem; filter: grayscale(0.5); transition: filter 0.3s; pointer-events: none; }
+.lang-btn:hover .lang-flag { filter: grayscale(0); }
 .lang-divider { color: rgba(240,237,232,0.2); }
 
 /* ═══════════════════════════════════════════════════
