@@ -3,127 +3,102 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Château et Dissolution — Quelle vie rêvez-vous ?</title>
-    <meta name="description" content="An emotional exploration of French châteaux. Not buildings — philosophies of living." />
+    <title>AuraPath | Global Career & Lifeline Generator</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <!-- Japanese font (Noto Serif JP) added alongside Latin fonts -->
-    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700;900&family=Noto+Serif+JP:wght@300;400;700;900&family=Syne:wght@400;700;800&family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400;1,600&family=Space+Grotesk:wght@300;400;500&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;900&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="/style.css" />
   </head>
   <body>
 
-    <!-- Film grain -->
-    <div class="grain" aria-hidden="true"></div>
+    <!-- 3D Canvas Background -->
+    <canvas id="webgl-canvas"></canvas>
 
-    <!-- ═══════════════════════════════════════════
-         ACT 0 — LANGUAGE SELECTION
-         ═══════════════════════════════════════════ -->
-    <section id="act-lang" class="act act--lang act--active">
-      <div class="lang-container">
-        <h1 class="lang-title">Château et Dissolution</h1>
-        <div class="lang-options">
-          <button class="lang-btn" data-lang="ja"><span class="lang-flag">🇯🇵</span> 日本語</button>
-          <span class="lang-divider">/</span>
-          <button class="lang-btn" data-lang="en"><span class="lang-flag">🇬🇧</span> English</button>
-        </div>
+    <!-- Overlay HUD -->
+    <div id="hud" class="hud hidden">
+      <div class="hud-top">
+        <div class="hud-logo">AURAPATH_</div>
+        <div class="hud-status">ONNX_RUNTIME: <span id="status-text">IDLE</span></div>
       </div>
-    </section>
-
-    <!-- ═══════════════════════════════════════════
-         ACT I — THE CALLING (Intro / Poem)
-         ═══════════════════════════════════════════ -->
-    <section id="act-intro" class="act act--intro">
-      <div class="intro-lines">
-        <!-- English Strings -->
-        <p class="intro-line lang-string en" data-delay="0">If you could</p>
-        <p class="intro-line lang-string en" data-delay="600">live in another century,</p>
-        <p class="intro-line intro-line--accent lang-string en" data-delay="1400">which silence</p>
-        <p class="intro-line lang-string en" data-delay="2000">would you choose?</p>
-
-        <!-- Japanese Strings -->
-        <p class="intro-line lang-string ja" data-delay="0">もし別の世紀を</p>
-        <p class="intro-line lang-string ja" data-delay="600">生きることができるなら、</p>
-        <p class="intro-line lang-string ja" data-delay="1200">あなたは</p>
-        <p class="intro-line intro-line--accent lang-string ja" data-delay="1800">どの静寂を</p>
-        <p class="intro-line lang-string ja" data-delay="2600">選びますか？</p>
+      <div class="scroll-instruction hidden" id="scroll-instruction">
+        SCROLL TO TRAVERSE LIFELINE ↓
       </div>
-      <button id="begin-btn" class="begin-btn" data-delay="3600">
-        <span class="begin-text lang-string en">Enter</span>
-        <span class="begin-text lang-string ja">扉を開く</span>
-        <span class="begin-line"></span>
-      </button>
-    </section>
+    </div>
 
-    <!-- ═══════════════════════════════════════════
-         ACT II — THE GALLERY (Horizontal Journey)
-         ═══════════════════════════════════════════ -->
-    <section id="act-gallery" class="act act--gallery">
-      <div class="hscroll" id="hscroll">
-        <div class="hscroll-track" id="hscroll-track">
-          <!-- Opening panel -->
-          <div class="panel panel--text">
-            <div class="panel-inner">
-              <h1 class="gallery-title">
-                <span class="gt-line">Château</span>
-                <span class="gt-line gt-line--italic">et Dissolution</span>
-              </h1>
-              <p class="gallery-sub lang-string en">Every château is a philosophy.<br>Every stone, a choice of life.</p>
-              <p class="gallery-sub lang-string ja">城とは、ひとつの哲学である。<br>石のひとつひとつが、人生の選択だ。</p>
+    <!-- UI Layer -->
+    <div id="ui-layer" class="ui-layer">
+      
+      <!-- Input Screen -->
+      <section id="screen-input" class="screen screen--active">
+        <div class="input-container">
+          <h1 class="title">Design Your Timeline</h1>
+          <p class="subtitle">Enter your interests, and our edge AI will weave your global trajectory.</p>
+          
+          <div class="form-group">
+            <label for="interest-input">What drives you? (Keywords, disciplines, problems to solve)</label>
+            <textarea id="interest-input" placeholder="e.g. I want to solve climate change using technology, or I am interested in AI ethics..."></textarea>
+          </div>
+          
+          <div class="form-row">
+            <div class="form-group">
+              <label for="budget-input">Current Budget (USD)</label>
+              <input type="number" id="budget-input" value="0" />
+            </div>
+            <div class="form-group">
+              <label for="english-level">English Level</label>
+              <select id="english-level">
+                <option value="beginner">Beginner (TOEFL &lt; 60)</option>
+                <option value="intermediate" selected>Intermediate (TOEFL 60-80)</option>
+                <option value="advanced">Advanced (TOEFL 80+)</option>
+              </select>
             </div>
           </div>
 
-          <!-- Castle panels (injected by JS) -->
-          <div id="castle-panels"></div>
+          <button id="btn-generate" class="btn-primary">GENERATE LIFELINE</button>
+        </div>
+      </section>
 
-          <!-- Final panel -->
-          <div class="panel panel--question">
-            <div class="panel-inner">
-              <p class="question-text lang-string en">
-                <span class="qt-small">Now, the question:</span>
-                <span class="qt-big">Which dissolution<br><em>do you choose?</em></span>
-              </p>
-              <p class="question-text lang-string ja">
-                <span class="qt-small">さて、問おう。</span>
-                <span class="qt-big">あなたはどの人生へと<br><em>溶け込むか？</em></span>
-              </p>
-              <button id="choose-btn" class="choose-btn">
-                <span class="lang-string en">Choose my life →</span>
-                <span class="lang-string ja">人生を選ぶ →</span>
-              </button>
+      <!-- Loading / Inference Screen -->
+      <section id="screen-loading" class="screen">
+        <div class="loading-container">
+          <h2 class="loading-title">INITIALIZING EDGE AI</h2>
+          <div class="progress-bar"><div id="progress-fill" class="progress-fill"></div></div>
+          <p id="loading-details" class="loading-details">Downloading ONNX Models...</p>
+        </div>
+      </section>
+
+      <!-- Result Overlay (Appears during scroll) -->
+      <section id="screen-result" class="screen pointer-events-none">
+        <div class="scroll-container" id="scroll-container">
+          <!-- Tall container to enable scrolling -->
+          <div class="scroll-height"></div>
+          
+          <!-- Sticky HUD elements bound to scroll depth -->
+          <div class="node-hud" id="node-hud">
+            <div class="node-label" id="node-label">NODE: 00</div>
+            <h2 class="node-title" id="node-title">---</h2>
+            <p class="node-desc" id="node-desc">---</p>
+            
+            <div class="finance-block hidden" id="finance-block">
+              <h3>CASHFLOW SIMULATION</h3>
+              <div class="finance-row"><span>Tuition/Living:</span> <span id="f-cost" class="f-red"></span></div>
+              <div class="finance-row"><span>Scholarship (JASSO/Tobitate):</span> <span id="f-schol" class="f-green"></span></div>
+              <div class="finance-row"><span>On-Campus Job:</span> <span id="f-job" class="f-green"></span></div>
+              <div class="finance-divider"></div>
+              <div class="finance-row total"><span>Net Monthly Impact:</span> <span id="f-net"></span></div>
+            </div>
+            
+            <div class="career-block hidden" id="career-block">
+              <h3>GLOBAL CAREER PROJECTION</h3>
+              <div class="career-row"><span>Role:</span> <span id="c-role"></span></div>
+              <div class="career-row"><span>Company:</span> <span id="c-company"></span></div>
+              <div class="career-row"><span>Starting Salary:</span> <span id="c-salary" class="f-blue"></span></div>
             </div>
           </div>
         </div>
-      </div>
+      </section>
 
-      <!-- Scroll hint -->
-      <div class="scroll-hint">
-        <span class="lang-string en">Scroll</span>
-        <span class="lang-string ja">スクロール</span>
-        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
-      </div>
-    </section>
-
-    <!-- ═══════════════════════════════════════════
-         ACT III — CHOOSE YOUR LIFE
-         ═══════════════════════════════════════════ -->
-    <section id="act-choose" class="act act--choose">
-      <div class="choose-grid" id="choose-grid">
-        <!-- Injected by JS -->
-      </div>
-    </section>
-
-    <!-- ═══════════════════════════════════════════
-         ACT IV — DISSOLUTION (Procedural Detail)
-         ═══════════════════════════════════════════ -->
-    <section id="act-detail" class="act act--detail">
-      <button id="back-btn" class="back-btn">
-        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M19 12H5M5 12l7 7M5 12l7-7"/></svg>
-        <span class="lang-string en">Return</span>
-        <span class="lang-string ja">戻る</span>
-      </button>
-      <div id="dissolution-canvas" class="dissolution-canvas"></div>
-    </section>
+    </div>
 
     <script type="module" src="/src/main.js"></script>
   </body>
