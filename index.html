@@ -1,0 +1,101 @@
+<!doctype html>
+<html lang="fr">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Château et Dissolution — Quelle vie rêvez-vous ?</title>
+    <meta name="description" content="An emotional exploration of French châteaux. Not buildings — philosophies of living." />
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700;900&family=Syne:wght@400;700;800&family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400;1,600&family=Space+Grotesk:wght@300;400;500&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/style.css" />
+  </head>
+  <body>
+
+    <!-- Film grain -->
+    <div class="grain" aria-hidden="true"></div>
+
+    <!-- ═══════════════════════════════════════════
+         ACT I — THE CALLING (Intro / Poem)
+         ═══════════════════════════════════════════ -->
+    <section id="act-intro" class="act act--intro act--active">
+      <div class="intro-lines">
+        <p class="intro-line" data-delay="0">Si vous pouviez</p>
+        <p class="intro-line" data-delay="600">vivre dans un autre siècle,</p>
+        <p class="intro-line intro-line--accent" data-delay="1400">quel silence</p>
+        <p class="intro-line" data-delay="2000">choisiriez-vous ?</p>
+      </div>
+      <button id="begin-btn" class="begin-btn" data-delay="3200">
+        <span class="begin-text">Entrer</span>
+        <span class="begin-line"></span>
+      </button>
+    </section>
+
+    <!-- ═══════════════════════════════════════════
+         ACT II — THE GALLERY (Horizontal Journey)
+         ═══════════════════════════════════════════ -->
+    <section id="act-gallery" class="act act--gallery">
+
+      <!-- The horizontal scroll wrapper -->
+      <div class="hscroll" id="hscroll">
+        <div class="hscroll-track" id="hscroll-track">
+
+          <!-- Opening panel -->
+          <div class="panel panel--text">
+            <div class="panel-inner">
+              <h1 class="gallery-title">
+                <span class="gt-line">Château</span>
+                <span class="gt-line gt-line--italic">et Dissolution</span>
+              </h1>
+              <p class="gallery-sub">Chaque château est une philosophie.<br>Chaque pierre, un choix de vie.</p>
+            </div>
+          </div>
+
+          <!-- Castle panels (injected by JS) -->
+          <div id="castle-panels"></div>
+
+          <!-- Final panel: the question -->
+          <div class="panel panel--question">
+            <div class="panel-inner">
+              <p class="question-text">
+                <span class="qt-small">Maintenant, la question :</span>
+                <span class="qt-big">Quelle dissolution<br><em>choisissez-vous ?</em></span>
+              </p>
+              <button id="choose-btn" class="choose-btn">Choisir ma vie →</button>
+            </div>
+          </div>
+
+        </div>
+      </div>
+
+      <!-- Scroll indicator -->
+      <div class="scroll-hint">
+        <span>Scroll</span>
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+      </div>
+
+    </section>
+
+    <!-- ═══════════════════════════════════════════
+         ACT III — CHOOSE YOUR LIFE
+         ═══════════════════════════════════════════ -->
+    <section id="act-choose" class="act act--choose">
+      <div class="choose-grid" id="choose-grid">
+        <!-- Castle choice cards injected by JS -->
+      </div>
+    </section>
+
+    <!-- ═══════════════════════════════════════════
+         ACT IV — DISSOLUTION (Procedural Detail)
+         ═══════════════════════════════════════════ -->
+    <section id="act-detail" class="act act--detail">
+      <button id="back-btn" class="back-btn">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M19 12H5M5 12l7 7M5 12l7-7"/></svg>
+        <span>Retour</span>
+      </button>
+      <div id="dissolution-canvas" class="dissolution-canvas"></div>
+    </section>
+
+    <script type="module" src="/src/main.js"></script>
+  </body>
+</html>
