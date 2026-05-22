@@ -14,14 +14,23 @@
     <!-- 3D Canvas Background -->
     <canvas id="webgl-canvas"></canvas>
 
+    <!-- Grain Overlay -->
+    <div class="grain"></div>
+
+    <!-- 3D Canvas Background -->
+    <canvas id="webgl-canvas"></canvas>
+
+    <!-- Scroll Enabler (hidden until result) -->
+    <div id="scroll-height" class="scroll-height hidden"></div>
+
     <!-- Overlay HUD -->
-    <div id="hud" class="hud hidden">
+    <div id="hud" class="hud hidden pointer-events-none">
       <div class="hud-top">
-        <div class="hud-logo">AURAPATH_</div>
-        <div class="hud-status">ONNX_RUNTIME: <span id="status-text">IDLE</span></div>
+        <div class="hud-logo">AURA<span>PATH</span></div>
+        <div class="hud-status">AI CORE <span id="status-text" class="status-pulse">IDLE</span></div>
       </div>
       <div class="scroll-instruction hidden" id="scroll-instruction">
-        SCROLL TO TRAVERSE LIFELINE ↓
+        <span>↓ SCROLL TO TRAVERSE LIFELINE</span>
       </div>
     </div>
 
@@ -32,21 +41,21 @@
       <section id="screen-input" class="screen screen--active">
         <div class="input-container">
           <h1 class="title">Design Your Timeline</h1>
-          <p class="subtitle">Enter your interests, and our edge AI will weave your global trajectory.</p>
+          <p class="subtitle">Define your parameters. Our ONNX edge AI will weave your global trajectory.</p>
           
           <div class="form-group">
-            <label for="interest-input">What drives you? (Keywords, disciplines, problems to solve)</label>
-            <textarea id="interest-input" placeholder="e.g. I want to solve climate change using technology, or I am interested in AI ethics..."></textarea>
+            <label for="interest-input">01. CORE INTEREST / VISION</label>
+            <input type="text" id="interest-input" class="input-line" placeholder="e.g. AI ethics, sustainable architecture..." autocomplete="off"/>
           </div>
           
           <div class="form-row">
             <div class="form-group">
-              <label for="budget-input">Current Budget (USD)</label>
-              <input type="number" id="budget-input" value="0" />
+              <label for="budget-input">02. INITIAL CAPITAL (USD)</label>
+              <input type="number" id="budget-input" class="input-line" value="0" />
             </div>
             <div class="form-group">
-              <label for="english-level">English Level</label>
-              <select id="english-level">
+              <label for="english-level">03. LINGUISTIC PROFICIENCY</label>
+              <select id="english-level" class="input-line">
                 <option value="beginner">Beginner (TOEFL &lt; 60)</option>
                 <option value="intermediate" selected>Intermediate (TOEFL 60-80)</option>
                 <option value="advanced">Advanced (TOEFL 80+)</option>
@@ -54,46 +63,46 @@
             </div>
           </div>
 
-          <button id="btn-generate" class="btn-primary">GENERATE LIFELINE</button>
+          <div class="form-action">
+            <button id="btn-generate" class="btn-primary">
+              <span class="btn-text">INITIALIZE SEQUENCE</span>
+              <span class="btn-line"></span>
+            </button>
+          </div>
         </div>
       </section>
 
       <!-- Loading / Inference Screen -->
       <section id="screen-loading" class="screen">
         <div class="loading-container">
-          <h2 class="loading-title">INITIALIZING EDGE AI</h2>
+          <div class="spinner"></div>
+          <h2 class="loading-title">SYNTHESIZING VECTORS</h2>
           <div class="progress-bar"><div id="progress-fill" class="progress-fill"></div></div>
-          <p id="loading-details" class="loading-details">Downloading ONNX Models...</p>
+          <p id="loading-details" class="loading-details">Loading Semantic Models...</p>
         </div>
       </section>
 
-      <!-- Result Overlay (Appears during scroll) -->
+      <!-- Result Overlay (Fixed positioned, reacts to scroll) -->
       <section id="screen-result" class="screen pointer-events-none">
-        <div class="scroll-container" id="scroll-container">
-          <!-- Tall container to enable scrolling -->
-          <div class="scroll-height"></div>
+        <div class="node-hud" id="node-hud">
+          <div class="node-label" id="node-label">NODE: 00</div>
+          <h2 class="node-title" id="node-title">---</h2>
+          <p class="node-desc" id="node-desc">---</p>
           
-          <!-- Sticky HUD elements bound to scroll depth -->
-          <div class="node-hud" id="node-hud">
-            <div class="node-label" id="node-label">NODE: 00</div>
-            <h2 class="node-title" id="node-title">---</h2>
-            <p class="node-desc" id="node-desc">---</p>
-            
-            <div class="finance-block hidden" id="finance-block">
-              <h3>CASHFLOW SIMULATION</h3>
-              <div class="finance-row"><span>Tuition/Living:</span> <span id="f-cost" class="f-red"></span></div>
-              <div class="finance-row"><span>Scholarship (JASSO/Tobitate):</span> <span id="f-schol" class="f-green"></span></div>
-              <div class="finance-row"><span>On-Campus Job:</span> <span id="f-job" class="f-green"></span></div>
-              <div class="finance-divider"></div>
-              <div class="finance-row total"><span>Net Monthly Impact:</span> <span id="f-net"></span></div>
-            </div>
-            
-            <div class="career-block hidden" id="career-block">
-              <h3>GLOBAL CAREER PROJECTION</h3>
-              <div class="career-row"><span>Role:</span> <span id="c-role"></span></div>
-              <div class="career-row"><span>Company:</span> <span id="c-company"></span></div>
-              <div class="career-row"><span>Starting Salary:</span> <span id="c-salary" class="f-blue"></span></div>
-            </div>
+          <div class="finance-block hidden" id="finance-block">
+            <h3>CASHFLOW SIMULATION</h3>
+            <div class="finance-row"><span>Tuition/Living</span> <span id="f-cost" class="f-red"></span></div>
+            <div class="finance-row"><span>Scholarship Aid</span> <span id="f-schol" class="f-green"></span></div>
+            <div class="finance-row"><span>Campus Job</span> <span id="f-job" class="f-green"></span></div>
+            <div class="finance-divider"></div>
+            <div class="finance-row total"><span>Net Monthly Impact</span> <span id="f-net"></span></div>
+          </div>
+          
+          <div class="career-block hidden" id="career-block">
+            <h3>GLOBAL CAREER PROJECTION</h3>
+            <div class="career-row"><span>Role</span> <span id="c-role" class="fw-bold"></span></div>
+            <div class="career-row"><span>Company</span> <span id="c-company"></span></div>
+            <div class="career-row"><span>Expected Salary</span> <span id="c-salary" class="f-gold"></span></div>
           </div>
         </div>
       </section>

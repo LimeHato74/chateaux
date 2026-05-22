@@ -90,6 +90,7 @@ class AuraPathApp {
       this.dom.screenResult.classList.add('screen--active');
       this.dom.hud.classList.remove('hidden');
       this.dom.scrollInstruction.classList.remove('hidden');
+      document.getElementById('scroll-height').classList.remove('hidden');
       this.dom.statusText.textContent = "ONLINE";
     }, 1000);
   }
@@ -103,17 +104,19 @@ class AuraPathApp {
 
     const onScroll = (e) => {
       // Hide instruction on first scroll
-      if (this.dom.scrollInstruction && e.scroll > 10) {
+      if (this.dom.scrollInstruction && window.scrollY > 10) {
         this.dom.scrollInstruction.classList.add('hidden');
       }
 
-      // Calculate progress (0 to 1) based on scroll container height
+      // Calculate progress (0 to 1) based on body height
       const maxScroll = document.documentElement.scrollHeight - window.innerHeight;
-      const progress = e.scroll / maxScroll;
+      const progress = maxScroll > 0 ? window.scrollY / maxScroll : 0;
       
       this.lifeline.updateCamera(progress);
     };
 
+    // Use native scroll event to drive progress if lenis scroll event isn't firing
+    window.addEventListener('scroll', onScroll);
     this.lenis.on('scroll', onScroll);
 
     gsap.ticker.add((time) => {
