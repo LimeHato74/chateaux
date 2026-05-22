@@ -3,111 +3,165 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>AuraPath | Global Career & Lifeline Generator</title>
+    <title>AuraPath — Crystallize Your Global Future</title>
+    <meta name="description" content="AuraPath uses edge AI to weave your global career trajectory. Discover universities, scholarships, and careers that match your vision." />
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;900&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Instrument+Serif&family=Inter:wght@300;400;500&family=JetBrains+Mono:wght@300;400&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="/style.css" />
   </head>
   <body>
 
-    <!-- 3D Canvas Background -->
-    <canvas id="webgl-canvas"></canvas>
+    <!-- Custom Cursor -->
+    <div id="cursor" class="cursor"></div>
+    <div id="cursor-trail" class="cursor-trail"></div>
 
-    <!-- Grain Overlay -->
+    <!-- Grain -->
     <div class="grain"></div>
 
-    <!-- 3D Canvas Background -->
+    <!-- 3D Canvas -->
     <canvas id="webgl-canvas"></canvas>
 
-    <!-- Scroll Enabler (hidden until result) -->
-    <div id="scroll-height" class="scroll-height hidden"></div>
+    <!-- ═══════════════════════════════════════════
+         ACT 0 — HERO / LANDING (Thorgal Inspired)
+    ═══════════════════════════════════════════ -->
+    <section id="act-hero" class="act act--hero act--visible">
+      <!-- Top Navigation / Logo -->
+      <header class="hero-header">
+        <div class="header-left">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none"><path d="M3 12h18M3 6h18M3 18h18" stroke="currentColor" stroke-width="1" stroke-linecap="round"/></svg>
+          <span>メニュー</span>
+        </div>
+        <div class="header-center">AURAPATH</div>
+        <div class="header-right">
+          <span>◆ 最新情報</span>
+        </div>
+      </header>
 
-    <!-- Overlay HUD -->
-    <div id="hud" class="hud hidden pointer-events-none">
-      <div class="hud-top">
-        <div class="hud-logo">AURA<span>PATH</span></div>
-        <div class="hud-status">AI CORE <span id="status-text" class="status-pulse">IDLE</span></div>
-      </div>
-      <div class="scroll-instruction hidden" id="scroll-instruction">
-        <span>↓ SCROLL TO TRAVERSE LIFELINE</span>
-      </div>
-    </div>
+      <!-- Side Indicators -->
+      <nav class="hero-side-nav">
+        <ul>
+          <li class="active"><span>◆</span> 世界観</li>
+          <li><span>◆</span></li>
+          <li><span>◆</span></li>
+          <li><span>◆</span></li>
+          <li><span>◆</span></li>
+        </ul>
+      </nav>
 
-    <!-- UI Layer -->
-    <div id="ui-layer" class="ui-layer">
-      
-      <!-- Input Screen -->
-      <section id="screen-input" class="screen screen--active">
-        <div class="input-container">
-          <h1 class="title">Design Your Timeline</h1>
-          <p class="subtitle">Define your parameters. Our ONNX edge AI will weave your global trajectory.</p>
-          
-          <div class="form-group">
-            <label for="interest-input">01. CORE INTEREST / VISION</label>
-            <input type="text" id="interest-input" class="input-line" placeholder="e.g. AI ethics, sustainable architecture..." autocomplete="off"/>
+      <!-- Center Content -->
+      <div class="hero-content">
+        <div class="hero-badge" data-delay="0">GATE 01</div>
+        <h1 class="hero-title" data-delay="1">
+          未知なる軌跡
+        </h1>
+        <button id="btn-enter" class="btn-magnetic" data-cursor="expand" data-delay="2">
+          <span>世界を探索する</span>
+        </button>
+      </div>
+
+      <div class="hero-scroll-hint">
+        <p>スクロールして探索</p>
+        <span class="hero-scroll-line"></span>
+      </div>
+    </section>
+
+    <!-- ═══════════════════════════════════════════
+         ACT 1 — INPUT (EDITORIAL STYLE - JP)
+    ═══════════════════════════════════════════ -->
+    <section id="act-input" class="act act--input">
+      <div class="input-grid">
+        <div class="input-left">
+          <p class="section-label">01 / 初期化</p>
+          <h2 class="section-title">あなたの軸を<br/>定義する</h2>
+          <p class="section-body">何に心を動かされますか？私たちのONNXセマンティックエンジンが、あなたの興味を世界中のプログラムやキャリアと照らし合わせ、独自の軌跡を生成します。</p>
+        </div>
+        <div class="input-right">
+          <div class="field">
+            <label for="interest-input">ビジョン・関心事</label>
+            <input type="text" id="interest-input" placeholder="例：気候変動テクノロジー、AIの倫理、空間コンピューティング..." autocomplete="off" data-cursor="text"/>
           </div>
-          
-          <div class="form-row">
-            <div class="form-group">
-              <label for="budget-input">02. INITIAL CAPITAL (USD)</label>
-              <input type="number" id="budget-input" class="input-line" value="0" />
+          <div class="field-row">
+            <div class="field">
+              <label for="budget-input">初期資金 (USD)</label>
+              <input type="number" id="budget-input" value="0" data-cursor="text"/>
             </div>
-            <div class="form-group">
-              <label for="english-level">03. LINGUISTIC PROFICIENCY</label>
-              <select id="english-level" class="input-line">
-                <option value="beginner">Beginner (TOEFL &lt; 60)</option>
-                <option value="intermediate" selected>Intermediate (TOEFL 60-80)</option>
-                <option value="advanced">Advanced (TOEFL 80+)</option>
+            <div class="field">
+              <label for="english-level">英語力</label>
+              <select id="english-level" data-cursor="text">
+                <option value="beginner">初級 (TOEFL &lt; 60)</option>
+                <option value="intermediate" selected>中級 (TOEFL 60-80)</option>
+                <option value="advanced">上級 (TOEFL 80+)</option>
               </select>
             </div>
           </div>
-
-          <div class="form-action">
-            <button id="btn-generate" class="btn-primary">
-              <span class="btn-text">INITIALIZE SEQUENCE</span>
-              <span class="btn-line"></span>
-            </button>
-          </div>
+          <button id="btn-generate" class="btn-magnetic btn-generate" data-cursor="expand">
+            <span>ライフラインを生成</span>
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none"><path d="M5 12h14M12 5l7 7-7 7" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          </button>
         </div>
-      </section>
+      </div>
+    </section>
 
-      <!-- Loading / Inference Screen -->
-      <section id="screen-loading" class="screen">
-        <div class="loading-container">
-          <div class="spinner"></div>
-          <h2 class="loading-title">SYNTHESIZING VECTORS</h2>
-          <div class="progress-bar"><div id="progress-fill" class="progress-fill"></div></div>
-          <p id="loading-details" class="loading-details">Loading Semantic Models...</p>
+    <!-- ═══════════════════════════════════════════
+         ACT 2 — LOADING / INFERENCE
+    ═══════════════════════════════════════════ -->
+    <section id="act-loading" class="act act--loading">
+      <div class="loading-center">
+        <div class="loading-ring"></div>
+        <p class="loading-label" id="loading-label">ONNXモデルをダウンロード中</p>
+        <div class="loading-bar">
+          <div class="loading-bar-fill" id="loading-bar-fill"></div>
         </div>
-      </section>
+        <p class="loading-sub" id="loading-sub">意味ベクトルを初期化しています...</p>
+      </div>
+    </section>
 
-      <!-- Result Overlay (Fixed positioned, reacts to scroll) -->
-      <section id="screen-result" class="screen pointer-events-none">
-        <div class="node-hud" id="node-hud">
-          <div class="node-label" id="node-label">NODE: 00</div>
-          <h2 class="node-title" id="node-title">---</h2>
-          <p class="node-desc" id="node-desc">---</p>
-          
-          <div class="finance-block hidden" id="finance-block">
-            <h3>CASHFLOW SIMULATION</h3>
-            <div class="finance-row"><span>Tuition/Living</span> <span id="f-cost" class="f-red"></span></div>
-            <div class="finance-row"><span>Scholarship Aid</span> <span id="f-schol" class="f-green"></span></div>
-            <div class="finance-row"><span>Campus Job</span> <span id="f-job" class="f-green"></span></div>
-            <div class="finance-divider"></div>
-            <div class="finance-row total"><span>Net Monthly Impact</span> <span id="f-net"></span></div>
-          </div>
-          
-          <div class="career-block hidden" id="career-block">
-            <h3>GLOBAL CAREER PROJECTION</h3>
-            <div class="career-row"><span>Role</span> <span id="c-role" class="fw-bold"></span></div>
-            <div class="career-row"><span>Company</span> <span id="c-company"></span></div>
-            <div class="career-row"><span>Expected Salary</span> <span id="c-salary" class="f-gold"></span></div>
-          </div>
+    <!-- ═══════════════════════════════════════════
+         ACT 3 — RESULT (SCROLL-DRIVEN NARRATIVE)
+    ═══════════════════════════════════════════ -->
+    <section id="act-result" class="act act--result">
+      <!-- Scroll container -->
+      <div id="scroll-spacer" class="scroll-spacer"></div>
+
+      <!-- Fixed HUD overlay -->
+      <div class="result-hud" id="result-hud">
+        <div class="result-hud-top">
+          <span class="hud-logo">AURA<em>PATH</em></span>
+          <span class="hud-ai-status">ONNX <span id="hud-status">稼働中</span></span>
         </div>
-      </section>
 
-    </div>
+        <!-- Node content — positioned left -->
+        <div class="result-node" id="result-node">
+          <p class="result-node-label" id="rn-label">NODE 00</p>
+          <h2 class="result-node-title" id="rn-title">起点</h2>
+          <p class="result-node-desc" id="rn-desc">あなたの現在地。</p>
+        </div>
+
+        <!-- Finance panel — positioned right -->
+        <div class="result-panel hidden" id="panel-finance">
+          <p class="panel-label">月間キャッシュフロー</p>
+          <div class="panel-row"><span>学費・生活費</span><span id="pf-cost" class="val-neg"></span></div>
+          <div class="panel-row"><span>奨学金・支援</span><span id="pf-schol" class="val-pos"></span></div>
+          <div class="panel-row"><span>キャンパス内就労</span><span id="pf-job" class="val-pos"></span></div>
+          <div class="panel-sep"></div>
+          <div class="panel-row panel-row--total"><span>純影響額</span><span id="pf-net"></span></div>
+        </div>
+
+        <!-- Career panel -->
+        <div class="result-panel hidden" id="panel-career">
+          <p class="panel-label">キャリアプロジェクション</p>
+          <div class="panel-row"><span>役割</span><span id="pc-role" class="val-accent"></span></div>
+          <div class="panel-row"><span>所属組織</span><span id="pc-company"></span></div>
+          <div class="panel-row"><span>想定初任給</span><span id="pc-salary" class="val-gold"></span></div>
+        </div>
+
+        <!-- Scroll progress bar -->
+        <div class="result-progress">
+          <div class="result-progress-fill" id="result-progress-fill"></div>
+        </div>
+      </div>
+    </section>
 
     <script type="module" src="/src/main.js"></script>
   </body>

@@ -1,203 +1,274 @@
 import * as THREE from 'three';
-import gsap from 'gsap';
 
-function createSoftCircleTexture() {
-  const canvas = document.createElement('canvas');
-  canvas.width = 64;
-  canvas.height = 64;
-  const ctx = canvas.getContext('2d');
-  const gradient = ctx.createRadialGradient(32, 32, 0, 32, 32, 32);
-  gradient.addColorStop(0, 'rgba(255,255,255,1)');
-  gradient.addColorStop(0.2, 'rgba(212,175,55,0.8)');
-  gradient.addColorStop(1, 'rgba(0,0,0,0)');
-  ctx.fillStyle = gradient;
-  ctx.fillRect(0, 0, 64, 64);
-  return new THREE.CanvasTexture(canvas);
+/* ═══════════════════════════════════════════════════════
+   Lifeline — Atmospheric 3D Background
+   Reacts to mouse. Ambient particles that feel alive.
+   NOT a wireframe tube — a luminous cloud of potential.
+   ═══════════════════════════════════════════════════════ */
+
+function makeSoftDot() {
+  const c = document.createElement('canvas');
+  c.width = c.height = 128;
+  const ctx = c.getContext('2d');
+  const g = ctx.createRadialGradient(64, 64, 0, 64, 64, 64);
+  g.addColorStop(0, 'rgba(255,255,255,1)');
+  g.addColorStop(0.15, 'rgba(255,255,255,0.6)');
+  g.addColorStop(0.5, 'rgba(200,255,0,0.1)');
+  g.addColorStop(1, 'rgba(0,0,0,0)');
+  ctx.fillStyle = g;
+  ctx.fillRect(0, 0, 128, 128);
+  return new THREE.CanvasTexture(c);
 }
 
 export class Lifeline {
   constructor(canvas) {
     this.canvas = canvas;
-    this.scene = new THREE.Scene();
-    this.scene.fog = new THREE.FogExp2(0x050505, 0.04);
 
-    this.camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
-    
+    // Renderer
     this.renderer = new THREE.WebGLRenderer({
-      canvas: this.canvas,
+      canvas,
       antialias: true,
-      alpha: true
+      alpha: true,
+      powerPreference: 'high-performance'
     });
     this.renderer.setSize(window.innerWidth, window.innerHeight);
     this.renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
 
-    this.points = [];
-    this.nodes = []; 
+    // Scene
+    this.scene = new THREE.Scene();
+    this.scene.fog = new THREE.FogExp2(0x1a0f0d, 0.025);
+
+    // Camera
+    this.camera = new THREE.PerspectiveCamera(60, window.innerWidth / window.innerHeight, 0.1, 500);
+    this.camera.position.set(0, 0, 5);
+
+    // State
+    this.mouse = { x: 0, y: 0, tx: 0, ty: 0 };
+    this.scrollProgress = 0;
     this.pathCurve = null;
-    this.tubeMesh = null;
-    this.particles = null;
+    this.nodes = [];
+    this.onNodeHover = null;
+    this.mode = 'ambient'; // 'ambient' | 'path'
+    this.dotTex = makeSoftDot();
 
-    this.scrollProgress = 0; 
-    this.particleTexture = createSoftCircleTexture();
+    // Ambient particles (always visible)
+    this._buildAmbient();
 
-    this._initGraphics();
-    
+    // Path objects (built on demand)
+    this.pathGroup = new THREE.Group();
+    this.scene.add(this.pathGroup);
+
+    // Events
     window.addEventListener('resize', this._onResize.bind(this));
-    
+    window.addEventListener('mousemove', (e) => {
+      this.mouse.tx = (e.clientX / window.innerWidth - 0.5) * 2;
+      this.mouse.ty = -(e.clientY / window.innerHeight - 0.5) * 2;
+    });
+
+    // Clock + loop
     this.clock = new THREE.Clock();
-    this.animate = this.animate.bind(this);
-    this.animate();
+    this._animate = this._animate.bind(this);
+    this._animate();
   }
 
-  _initGraphics() {
-    this.scene.add(new THREE.AmbientLight(0xffffff, 0.3));
-    const pl = new THREE.PointLight(0xd4af37, 3, 40);
-    this.scene.add(pl);
-    this.pointLight = pl;
-  }
+  /* ─── Ambient Cloud (Hero Background) ───────────── */
+  _buildAmbient() {
+    const count = 4000;
+    const geo = new THREE.BufferGeometry();
+    const pos = new Float32Array(count * 3);
+    const sizes = new Float32Array(count);
+    const alphas = new Float32Array(count);
 
-  buildPath(matchData) {
-    if (this.tubeMesh) this.scene.remove(this.tubeMesh);
-    if (this.particles) this.scene.remove(this.particles);
-
-    this.points = [];
-    const numPoints = 150;
-    const length = 120;
-    
-    for (let i = 0; i < numPoints; i++) {
-      const t = i / numPoints;
-      const angle = t * Math.PI * 6; // 3 loops
-      const radius = 2 + Math.sin(t * Math.PI * 3) * 1.5;
-      
-      const x = Math.cos(angle) * radius;
-      const y = Math.sin(angle) * radius + (t * 8); 
-      const z = -t * length; 
-      
-      this.points.push(new THREE.Vector3(x, y, z));
+    for (let i = 0; i < count; i++) {
+      // Distribute in a wide sphere
+      const theta = Math.random() * Math.PI * 2;
+      const phi = Math.acos(2 * Math.random() - 1);
+      const r = 3 + Math.random() * 25;
+      pos[i * 3]     = r * Math.sin(phi) * Math.cos(theta);
+      pos[i * 3 + 1] = r * Math.sin(phi) * Math.sin(theta);
+      pos[i * 3 + 2] = r * Math.cos(phi) - 10;
+      sizes[i] = 0.3 + Math.random() * 1.5;
+      alphas[i] = 0.1 + Math.random() * 0.4;
     }
 
-    this.pathCurve = new THREE.CatmullRomCurve3(this.points);
+    geo.setAttribute('position', new THREE.BufferAttribute(pos, 3));
+    geo.setAttribute('aSize', new THREE.BufferAttribute(sizes, 1));
 
-    // Glowing Tube
-    const tubeGeo = new THREE.TubeGeometry(this.pathCurve, 300, 0.08, 6, false);
-    const tubeMat = new THREE.MeshBasicMaterial({
-      color: 0xd4af37,
-      wireframe: true,
+    const mat = new THREE.PointsMaterial({
+      color: 0xe85d04, // Deep orange
+      size: 0.4,
+      map: this.dotTex,
       transparent: true,
-      opacity: 0.15,
+      opacity: 0.4,
+      blending: THREE.AdditiveBlending,
+      depthWrite: false,
+      sizeAttenuation: true
+    });
+
+    this.ambientParticles = new THREE.Points(geo, mat);
+    this.scene.add(this.ambientParticles);
+  }
+
+  /* ─── Build Lifeline Path (After AI Match) ──────── */
+  buildPath(matchData) {
+    // Clear old
+    while (this.pathGroup.children.length) {
+      this.pathGroup.remove(this.pathGroup.children[0]);
+    }
+
+    // Generate curve
+    const pts = [];
+    const N = 200;
+    const len = 150;
+    for (let i = 0; i < N; i++) {
+      const t = i / N;
+      const angle = t * Math.PI * 8; // 4 full spirals
+      const r = 1.5 + Math.sin(t * Math.PI * 4) * 1.2;
+      pts.push(new THREE.Vector3(
+        Math.cos(angle) * r,
+        Math.sin(angle) * r + t * 6,
+        -t * len
+      ));
+    }
+    this.pathCurve = new THREE.CatmullRomCurve3(pts);
+
+    // Inner core line — thin, glowing
+    const tubeGeo = new THREE.TubeGeometry(this.pathCurve, 500, 0.03, 4, false);
+    const tubeMat = new THREE.MeshBasicMaterial({
+      color: 0xe85d04,
+      transparent: true,
+      opacity: 0.6,
       blending: THREE.AdditiveBlending
     });
-    this.tubeMesh = new THREE.Mesh(tubeGeo, tubeMat);
-    this.scene.add(this.tubeMesh);
+    this.pathGroup.add(new THREE.Mesh(tubeGeo, tubeMat));
 
-    // Particles
-    const particleCount = 15000;
+    // Outer envelope — wireframe, subtle
+    const envGeo = new THREE.TubeGeometry(this.pathCurve, 300, 0.3, 6, false);
+    const envMat = new THREE.MeshBasicMaterial({
+      color: 0xe85d04,
+      wireframe: true,
+      transparent: true,
+      opacity: 0.04,
+      blending: THREE.AdditiveBlending
+    });
+    this.pathGroup.add(new THREE.Mesh(envGeo, envMat));
+
+    // Path particles — close to the line
+    const pCount = 20000;
     const pGeo = new THREE.BufferGeometry();
-    const pPos = new Float32Array(particleCount * 3);
-    
-    for(let i=0; i<particleCount; i++) {
+    const pPos = new Float32Array(pCount * 3);
+    for (let i = 0; i < pCount; i++) {
       const t = Math.random();
-      const pt = this.pathCurve.getPointAt(t);
-      // More dispersed noise
-      pt.x += (Math.random() - 0.5) * 4;
-      pt.y += (Math.random() - 0.5) * 4;
-      pt.z += (Math.random() - 0.5) * 4;
-      
-      pPos[i*3] = pt.x;
-      pPos[i*3+1] = pt.y;
-      pPos[i*3+2] = pt.z;
+      const p = this.pathCurve.getPointAt(t);
+      const spread = 0.3 + Math.random() * 2.5;
+      pPos[i * 3]     = p.x + (Math.random() - 0.5) * spread;
+      pPos[i * 3 + 1] = p.y + (Math.random() - 0.5) * spread;
+      pPos[i * 3 + 2] = p.z + (Math.random() - 0.5) * spread;
     }
     pGeo.setAttribute('position', new THREE.BufferAttribute(pPos, 3));
-    
     const pMat = new THREE.PointsMaterial({
-      color: 0xffdf00,
-      size: 0.2,
-      map: this.particleTexture,
+      color: 0xdc2f02, // Deep red/gold
+      size: 0.12,
+      map: this.dotTex,
       transparent: true,
-      opacity: 0.5,
+      opacity: 0.45,
       blending: THREE.AdditiveBlending,
-      depthWrite: false
+      depthWrite: false,
+      sizeAttenuation: true
     });
-    this.particles = new THREE.Points(pGeo, pMat);
-    this.scene.add(this.particles);
+    this.pathParticles = new THREE.Points(pGeo, pMat);
+    this.pathGroup.add(this.pathParticles);
 
-    // Place Nodes
+    // Nodes
     this.nodes = [
-      { t: 0.0, type: 'start', data: { title: 'Current Node: Japan', desc: 'Your starting coordinate.' } },
+      { t: 0.0,  type: 'start',    data: { title: 'Origin', desc: 'Your current coordinates.' } },
       { t: 0.45, type: 'syllabus', data: matchData.syllabus },
-      { t: 0.85, type: 'career', data: matchData.career }
+      { t: 0.85, type: 'career',  data: matchData.career }
     ];
 
+    // Node markers
     this.nodes.forEach(n => {
-      const pt = this.pathCurve.getPointAt(n.t);
-      const mesh = new THREE.Mesh(
-        new THREE.SphereGeometry(0.3, 16, 16),
+      const p = this.pathCurve.getPointAt(n.t);
+      // Bright sphere
+      const sphere = new THREE.Mesh(
+        new THREE.SphereGeometry(0.15, 12, 12),
         new THREE.MeshBasicMaterial({ color: 0xffffff })
       );
-      mesh.position.copy(pt);
-      
-      // Node glow
-      const glow = new THREE.Sprite(new THREE.SpriteMaterial({
-        map: this.particleTexture,
-        color: 0xffffff,
+      sphere.position.copy(p);
+      // Glow
+      const sprite = new THREE.Sprite(new THREE.SpriteMaterial({
+        map: this.dotTex,
+        color: 0xe85d04,
         transparent: true,
-        blending: THREE.AdditiveBlending
+        blending: THREE.AdditiveBlending,
+        opacity: 0.8
       }));
-      glow.scale.set(3, 3, 3);
-      mesh.add(glow);
-      
-      this.scene.add(mesh);
+      sprite.scale.set(4, 4, 4);
+      sphere.add(sprite);
+      this.pathGroup.add(sphere);
     });
 
+    this.mode = 'path';
     this.updateCamera(0);
   }
 
+  /* ─── Camera Update (Scroll-Driven) ─────────────── */
   updateCamera(progress) {
     if (!this.pathCurve) return;
-    
-    // Clamp progress
-    const t = Math.max(0.001, Math.min(0.999, progress));
-    
-    const currentPoint = this.pathCurve.getPointAt(t);
-    const lookAtPoint = this.pathCurve.getPointAt(Math.min(1.0, t + 0.05));
+    this.scrollProgress = progress;
+    const t = Math.max(0.001, Math.min(0.998, progress));
 
-    // Place camera slightly above and behind the current point
-    this.camera.position.copy(currentPoint);
-    this.camera.position.y += 0.5; // Offset
-    
-    this.camera.lookAt(lookAtPoint);
-    
-    // Move light
-    this.pointLight.position.copy(currentPoint);
-    this.pointLight.position.z -= 2;
+    const pos = this.pathCurve.getPointAt(t);
+    const look = this.pathCurve.getPointAt(Math.min(0.999, t + 0.04));
 
-    // Check if we are near a node to trigger events
-    let activeNode = null;
-    for(const n of this.nodes) {
-      if (Math.abs(n.t - t) < 0.05) {
-        activeNode = n;
-        break;
-      }
+    // Smooth offset for cinematic feel
+    this.camera.position.lerp(
+      new THREE.Vector3(pos.x + this.mouse.x * 0.5, pos.y + 0.8 + this.mouse.y * 0.3, pos.z + 1.5),
+      0.08
+    );
+    this.camera.lookAt(look);
+
+    // Fire node hover
+    let active = null;
+    for (const n of this.nodes) {
+      if (Math.abs(n.t - t) < 0.06) { active = n; break; }
     }
-
-    if (this.onNodeHover) {
-      this.onNodeHover(activeNode);
-    }
+    if (this.onNodeHover) this.onNodeHover(active);
   }
 
+  /* ─── Resize ────────────────────────────────────── */
   _onResize() {
-    this.camera.aspect = window.innerWidth / window.innerHeight;
+    const w = window.innerWidth, h = window.innerHeight;
+    this.camera.aspect = w / h;
     this.camera.updateProjectionMatrix();
-    this.renderer.setSize(window.innerWidth, window.innerHeight);
+    this.renderer.setSize(w, h);
   }
 
-  animate() {
-    requestAnimationFrame(this.animate);
-    const dt = this.clock.getDelta();
-    const time = this.clock.getElapsedTime();
+  /* ─── Render Loop ───────────────────────────────── */
+  _animate() {
+    requestAnimationFrame(this._animate);
+    const t = this.clock.getElapsedTime();
 
-    if (this.particles) {
-      this.particles.rotation.z = time * 0.1;
+    // Smooth mouse
+    this.mouse.x += (this.mouse.tx - this.mouse.x) * 0.05;
+    this.mouse.y += (this.mouse.ty - this.mouse.y) * 0.05;
+
+    // Ambient mode — camera sways gently with mouse
+    if (this.mode === 'ambient') {
+      this.camera.position.x += (this.mouse.x * 1.5 - this.camera.position.x) * 0.02;
+      this.camera.position.y += (this.mouse.y * 0.8 - this.camera.position.y) * 0.02;
+      this.camera.lookAt(0, 0, -10);
+    }
+
+    // Subtle rotation of ambient particles
+    if (this.ambientParticles) {
+      this.ambientParticles.rotation.y = t * 0.02;
+      this.ambientParticles.rotation.x = Math.sin(t * 0.01) * 0.05;
+    }
+
+    // Path particles shimmer
+    if (this.pathParticles) {
+      this.pathParticles.rotation.z = Math.sin(t * 0.3) * 0.01;
     }
 
     this.renderer.render(this.scene, this.camera);
